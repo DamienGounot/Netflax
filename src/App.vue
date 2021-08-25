@@ -1,19 +1,19 @@
 <template>
   <v-app>
     <v-main>
-      <HomePage/>
+      <Home/>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import HomePage from './components/HomePage';
+import Home from './components/Home';
 
 export default {
   name: 'App',
 
   components: {
-    HomePage,
+    Home,
   },
 
   data: () => ({

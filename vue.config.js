@@ -3,7 +3,8 @@ module.exports = {
     'vuetify'
   ],
   devServer: {
-    public: 'http://www.gounot.org',
+    "disableHostCheck": true,
+    public: 'http://www.netflax.fr',
     port: 80
 }
 }
