@@ -13,6 +13,11 @@ vue add vuetify
 vue --version
 vue ui
 
+## axios & router install 
+npm install axios
+npm install --save vue-axios
+npm install --save vue-router
+
 ## Running for dev
 npm run serve
 
