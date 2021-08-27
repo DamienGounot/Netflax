@@ -1,11 +1,7 @@
 <?php
 
-$FILEPATH = "/log/log.csv";
-$HOST_DB = "localhost";
-$USERNAME_DB = "root";
-$PASSWORD_DB = "";
-$NAME_DB = "mydb";
-
+include_once '../System/global_var.php';
+include_once '../System/log.php';
 
 session_start();
 $connect = new PDO("mysql:host=".$HOST_DB.";dbname=".$NAME_DB, "$USERNAME_DB", "$PASSWORD_DB");
@@ -13,8 +9,8 @@ $received_data = json_decode(file_get_contents("php://input"));
 $data = array();
 
 //$input =  json_encode($received_data);
-$username = $received_data->{'username'};
-$password = $received_data->{'password'};
+$username = $received_data->{'usernameLogin'};
+$password = $received_data->{'passwordLogin'};
 
 if(isset($username) && isset($password)){ // if every attempt data have been send
 
@@ -28,10 +24,9 @@ if(isset($username) && isset($password)){ // if every attempt data have been sen
 
     if(!empty($data)){
         $_SESSION['ONLINE'] = TRUE;
-        echo "Login success";
+        logger("[SUCCESS][LOGIN]".$username,$FILEPATH);
     }else{
-        $_SESSION['ONLINE'] = FALSE;
-        echo "Failed to login";
+        logger("[ERROR][LOGIN]".$username,$FILEPATH);
         session_destroy();
     }
 
