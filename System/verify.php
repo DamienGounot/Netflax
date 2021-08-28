@@ -12,7 +12,7 @@ if(isset($_GET['email']) && !empty($_GET['email']) AND isset($_GET['hash']) && !
                     
     $query    = "SELECT * FROM users WHERE email='" .htmlspecialchars($_GET['email']). "'AND verificationHash='" .htmlspecialchars($_GET['hash'])."'";
     
-    $clic = date("Y-m-d");
+    $clic = date("Y-m-d;H:i:s");
 
 
     $statement = $connect->prepare($query);
@@ -29,7 +29,7 @@ if(isset($_GET['email']) && !empty($_GET['email']) AND isset($_GET['hash']) && !
         $registrationtime = strtotime($user["creationTime"]);
         $clictime = strtotime($clic);
 
-        if($clictime - $registrationtime < 360000){ // if less than 10 minutes
+        if($clictime - $registrationtime < 600){ // if less than 10 minutes
         
         $query = "UPDATE users SET status = '1' WHERE email='".htmlspecialchars($_GET['email'])."' AND verificationHash='".htmlspecialchars($_GET['hash'])."' AND status='0'"; 
         $statement = $connect->prepare($query);
@@ -45,3 +45,4 @@ if(isset($_GET['email']) && !empty($_GET['email']) AND isset($_GET['hash']) && !
         }
     }
 }
+?>
