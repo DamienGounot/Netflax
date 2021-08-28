@@ -24,3 +24,12 @@ npm run serve
 ## Build
 npm run build
 
+
+## email 
+### First way: with composer
+*install **composer***
+*create new directory*
+*create **composer.json** inside directory*
+*set requirement inside json (https://github.com/PHPMailer/PHPMailer)*
+composer install
+
