@@ -33,6 +33,15 @@ include_once './System/global_var.php';
                             <v-card-text>
                                 <v-form v-model="loginForm" lazy-validation>
                                     <v-row>
+                                    <v-col cols="12">
+                                    <v-alert
+                                    v-model="alertDisplay"
+                                    :type="alertType"
+                                    dismissible
+                                    >
+                                    {{alertMessage}}
+                                    </v-alert>
+                                    </v-col>
                                         <v-col cols="12">
                                             <v-text-field v-model="usernameLogin" @change="unlockLogin"  label="Username":rules="[rules.required]" outlined  clearable ></v-text-field>
                                         </v-col>
@@ -42,7 +51,7 @@ include_once './System/global_var.php';
                                         <v-col class="d-flex" cols="12" sm="6" xsm="12">
                                         </v-col>
                                         <v-spacer></v-spacer>
-                                        <v-col class="d-flex" cols="12" sm="3" xsm="12" align-end>
+                                        <v-col class="d-flex" cols="12" sm="3" xsm="12">
                                             <v-btn x-large block :disabled="!loginBtn" color="success" v-model="submitLogin" @click="loginRequest"> Login </v-btn>
                                         </v-col>
                                     </v-row>
@@ -57,6 +66,15 @@ include_once './System/global_var.php';
                             <v-card-text>
                                 <v-form  v-model="registerForm" lazy-validation>
                                     <v-row>
+                                    <v-col cols="12">
+                                    <v-alert
+                                    v-model="alertDisplayRegister"
+                                    :type="alertTypeRegister"
+                                    dismissible
+                                    >
+                                    {{alertMessageRegister}}
+                                    </v-alert>
+                                    </v-col>
                                         <v-col cols="12" >
                                             <v-text-field v-model="usernameRegister" label="Username" @change="unlockLoginRegister" :rules="[rules.required]"outlined  clearable ></v-text-field>
                                         </v-col>
@@ -77,10 +95,10 @@ include_once './System/global_var.php';
                                 </v-form>
                             </v-card-text>
                         </v-card>
-                        
                     </v-tab-item>
                 </v-tabs>
             </div>
+
         </v-dialog>
     </v-app>
 </div>
@@ -126,7 +144,14 @@ include_once './System/global_var.php';
     rules: {
         required: value => !!value || "This field is required.",
 
-      },
+    },
+    alertDisplay: false,
+    alertType: '',
+    alertMessage: '',
+
+    alertDisplayRegister: false,
+    alertTypeRegister: '',
+    alertMessageRegister: '',
 
   }),
   methods: {
@@ -147,19 +172,58 @@ include_once './System/global_var.php';
       }
     },
 
-    loginRequest(){
-    axios.post('./Controller/login.php', {
-    usernameLogin: this.usernameLogin,
-    passwordLogin: this.passwordLogin,
-   }).then(function(response){
-    this.data = response.data 
-    console.log(this.data)
-    window.location.reload();
-   });
+    async loginRequest(){
+        const loginResponse = await axios.post('./Controller/login.php', {
+        usernameLogin: this.usernameLogin,
+        passwordLogin: this.passwordLogin,
+    })
+    console.log(loginResponse.data)
+    this.alertMessage = loginResponse.data.text;
+    this.alertDisplay = true; 
+    switch (loginResponse.data.type) {
+        case "ERROR":
+            this.alertType = "error";
+            break;
+        case "SUCCESS":
+            this.alertDisplay = false;
+            window.location.reload();
+            break;    
+        default:
+        this.alertType = "warning";
+            break;
+    }
   },
 
-  registerRequest() {
+    displayAlert(type,text){
+        console.log("On rentre")
+        this.alertDisplay = !this.alertDisplay
+        this.alertType = type
+        this.alertMessage = text
 
+    },
+
+    async registerRequest() {
+        const registerResponse = await axios.post('./Controller/register.php', {
+        emailRegister: this.emailRegister,
+        usernameRegister: this.usernameRegister,
+        passwordRegister: this.passwordRegister,
+        verifyRegister: this.verifyRegister,
+   })
+        console.log(registerResponse.data)
+        this.alertMessageRegister = registerResponse.data.text;
+    this.alertDisplayRegister = true; 
+    switch (registerResponse.data.type) {
+        case "ERROR":
+            this.alertTypeRegister = "error";
+            break;
+        case "SUCCESS":
+            
+            this.alertTypeRegister = "success";
+            break;    
+        default:
+        this.alertType = "warning";
+            break;
+    }
     },
 
   },
