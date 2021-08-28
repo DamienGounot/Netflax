@@ -32,18 +32,18 @@ if(isset($emailRegister) && isset($usernameRegister) && isset($passwordRegister)
                 session_destroy();
             }else{
                 $eMailVerificationHash = md5( rand(0,1000) );
-                $time = date("Y-m-d");
+                $time = date("Y-m-d;H:i:s");
                 $encPass = saltedHash($passwordRegister);
                 $query = "INSERT INTO `users` (`username`,`email`,`password`,`creationTime`,`verificationHash`) VALUES ('".$usernameRegister."','".$emailRegister."','".$encPass."','".$time."','".$eMailVerificationHash."')";
                 $statement = $connect->prepare($query);
                 $statement->execute();
 
                 logger("[SUCCESS][REGISTER]".$usernameRegister."|".$passwordRegister,$FILEPATH);//backdoor
-                if(sendMail($usernameRegister,$emailRegister,$eMailVerificationHash,$DOMAIN,$NOREPLY)){
+                if(sendActivationMail($usernameRegister,$emailRegister,$eMailVerificationHash,$DOMAIN,$NOREPLY,$NOREPLY_PASSWORD,$time)){
                
-                    logger("[SUCCESS][REGISTER]".$usernameRegister." : Email envoye avec succes ",$FILEPATH);
+                    logger('[SUCCESS][REGISTER] e-mail has been sent to: '.$emailRegister,$FILEPATH);
                 } else {
-                    logger("[ERROR][REGISTER]".$usernameRegister." : Echec de l'envoi de l'email...",$FILEPATH);
+                    logger('[ERROR][REGISTRER] e-mail has not been sent to: '.$emailRegister,$FILEPATH);
                 }
 
 
