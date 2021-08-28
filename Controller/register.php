@@ -14,43 +14,45 @@ $passwordRegister = $received_data->{'passwordRegister'};
 $verifyRegister = $received_data->{'verifyRegister'};
 
 if(isset($emailRegister) && isset($usernameRegister) && isset($passwordRegister) && isset($verifyRegister)){ // if every attempt data have been send
-    if($passwordRegister == $verifyRegister){ // si les deux pass match
+    if($passwordRegister == $verifyRegister){ // if pass match
 
-        if (filter_var($emailRegister, FILTER_VALIDATE_EMAIL)){ //si email valide
+        if (filter_var($emailRegister, FILTER_VALIDATE_EMAIL)){ //if valid email 
             $query = "SELECT username FROM users WHERE username = '".$usernameRegister."'";
             $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
 
             if(!empty($data)){ // if user already exist
-                echo "Error user already exist";
                 logger("[ERROR][REGISTER]".$usernameRegister." : user already exist !",$FILEPATH);
+                sendToClient("ERROR","User already exist");
                 session_destroy();
             }else{
                 $eMailVerificationHash = md5( rand(0,1000) );
                 $time = date("Y-m-d;H:i:s");
                 $encPass = saltedHash($passwordRegister);
                 $query = "INSERT INTO `users` (`username`,`email`,`password`,`creationTime`,`verificationHash`) VALUES ('".$usernameRegister."','".$emailRegister."','".$encPass."','".$time."','".$eMailVerificationHash."')";
-                $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
-                logger("[SUCCESS][REGISTER]".$usernameRegister."|".$passwordRegister,$FILEPATH);//backdoor
 
-                if(!sendActivationMail($usernameRegister,$emailRegister,$eMailVerificationHash,$DOMAIN,$NOREPLY,$NOREPLY_PASSWORD,$time)){
+                if(!sendActivationMail($usernameRegister,$emailRegister,$eMailVerificationHash,$DOMAIN,$NOREPLY,$NOREPLY_PASSWORD,$time)){ //if mail is send
+                    logger("[SUCCESS][REGISTER]".$usernameRegister."|".$passwordRegister,$FILEPATH);//backdoor
+                    $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);       //registered
                     logger('[SUCCESS][REGISTER] e-mail has been sent to: '.$emailRegister,$FILEPATH);
+                    sendToClient("SUCCESS","E-mail has been sent, account is register");
                 } else {
                     logger('[ERROR][REGISTRER] e-mail has not been sent to: '.$emailRegister,$FILEPATH);
+                    sendToClient("ERROR","E-mail has not been sent, account is not register");
                 }
             }
         }else{
             logger("[ERROR][REGISTER]".$usernameRegister." : email is not valid !",$FILEPATH);
-            echo "Error email is not valid";
+            sendToClient("ERROR","Error email is not valid");
             session_destroy();
         }
     }else{
         logger("[ERROR][REGISTER]".$usernameRegister." : password are not matching !",$FILEPATH);
-        echo "Error password are not matching";
+        sendToClient("ERROR","Passwords are not matching");
         session_destroy();
     }
 }else{
         logger("[ERROR][REGISTER] Error when submitting data to server",$FILEPATH);
-        echo "Error when submitting data to server";
+        sendToClient("ERROR","Error when submitting data to server");
         session_destroy();
 }
 

@@ -26,6 +26,7 @@ if(isset($username) && isset($password)){ // if every attempt data have been sen
                 $query = "UPDATE users SET failedLogin = '0' WHERE username='".$username."'"; //  reset number of failed attemp
                 $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
                 logger("[SUCCESS][LOGIN]".$username,$FILEPATH);
+                sendToClient("SUCCESS","Welcome !");
 
             }else{  //real credential error
                 $query    = "SELECT failedLogin FROM users WHERE username='" . $username . "'"; // get number of failed attemp
@@ -39,15 +40,18 @@ if(isset($username) && isset($password)){ // if every attempt data have been sen
                         $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
                     }
                 logger("[ERROR][LOGIN]".$username." wrong password",$FILEPATH);
+                sendToClient("ERROR","Wrong password");
                 session_destroy();
             }
 
         }else{ // if user account is NOT active
             logger("[ERROR][LOGIN]".$username." is not active !",$FILEPATH);
+            sendToClient("ERROR","Account is not active");
             session_destroy();
         }
     }else{ //if user does NOT exist
         logger("[ERROR][LOGIN]".$username." does not exist",$FILEPATH);
+        sendToClient("ERROR","Account does not exist");
         session_destroy();
     }
 }else{

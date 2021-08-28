@@ -24,11 +24,13 @@ if(isset($_GET['email']) && !empty($_GET['email']) AND isset($_GET['hash']) && !
         
         $text = "The account with the email : ".htmlspecialchars($_GET['email'])." has been activated !";
         logger("[SUCCES][ACTIVATION]".$text,$FILEPATH);
-        header("Location: ../index.php");        
+        header("Location: ../index.php");
+        sendToClient("SUCCESS","Account activated");        
     }else{
                         
         $text = "The account with the email : ".htmlspecialchars($_GET['email'])." has not been activated because delay reached !";
         logger("[ERROR][ACTIVATION]".$text,$FILEPATH);
+        sendToClient("ERROR","Error delay reached");
         header("Location: ../index.php");            
         }
     }
