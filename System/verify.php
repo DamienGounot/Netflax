@@ -1,27 +1,15 @@
 <?php
 include_once './global_var.php';
 include_once './log.php';
+include_once '../Database/db.php';
+
 session_start();
-
-$connect = new PDO("mysql:host=".$HOST_DB.";dbname=".$NAME_DB, "$USERNAME_DB", "$PASSWORD_DB");
-$received_data = json_decode(file_get_contents("php://input"));
-$data = array();
-
              
 if(isset($_GET['email']) && !empty($_GET['email']) AND isset($_GET['hash']) && !empty($_GET['hash'])){
                     
-    $query    = "SELECT * FROM users WHERE email='" .htmlspecialchars($_GET['email']). "'AND verificationHash='" .htmlspecialchars($_GET['hash'])."'";
-    
+    $query = "SELECT * FROM users WHERE email='" .htmlspecialchars($_GET['email']). "'AND verificationHash='" .htmlspecialchars($_GET['hash'])."'";
     $clic = date("Y-m-d;H:i:s");
-
-
-    $statement = $connect->prepare($query);
-    $statement->execute();
-    while($row = $statement->fetch(PDO::FETCH_ASSOC))
-    {
-        $data[] = $row;
-    }
-
+    $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
     if(empty($data)){
         header("Location: ../index.php");        
     }else{
@@ -32,8 +20,8 @@ if(isset($_GET['email']) && !empty($_GET['email']) AND isset($_GET['hash']) && !
         if($clictime - $registrationtime < 600){ // if less than 10 minutes
         
         $query = "UPDATE users SET status = '1' WHERE email='".htmlspecialchars($_GET['email'])."' AND verificationHash='".htmlspecialchars($_GET['hash'])."' AND status='0'"; 
-        $statement = $connect->prepare($query);
-        $statement->execute();
+        $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
+        
         $text = "The account with the email : ".htmlspecialchars($_GET['email'])." has been activated !";
         logger("[SUCCES][ACTIVATION]".$text,$FILEPATH);
         header("Location: ../index.php");        
