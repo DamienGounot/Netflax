@@ -17,19 +17,61 @@ include_once '../System/checkOnline.php';
 
   <v-app id="Home">
 
-    <v-app-bar app>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-
+  <div>
+    <v-toolbar>
+      <v-app-bar-nav-icon></v-app-bar-nav-icon>
       <v-toolbar-title>Home</v-toolbar-title>
-    </v-app-bar>
+    
+      <v-spacer></v-spacer>
+      Hello {{username}} ! Welcome to Netflax.fr
+      <v-spacer></v-spacer>
+      Disconnect
+      <v-btn icon
+       v-model="toolbarDisconnect" @click="disconnect"
+      >
+        <v-icon>mdi-export</v-icon>
+      </v-btn>
+    </v-toolbar>
+    </div>
+
+
+    
 
     <v-navigation-drawer
       v-model="drawer"
-      fixed
+      absolute
+      bottom
       temporary
     >
-      <!--  -->
+      <v-list
+        nav
+        dense
+      >
+        <v-list-item-group
+          v-model="group"
+          active-class="deep-purple--text text--accent-4"
+        >
+          <v-list-item>
+            <v-list-item-title>Foo</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-title>Bar</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-title>Fizz</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-title>Buzz</v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
     </v-navigation-drawer>
+
+
+
 
     <v-main class="grey lighten-2">
       <v-container>
@@ -66,9 +108,17 @@ include_once '../System/checkOnline.php';
   },
 
   data: () => ({
+    username: '',
 
   }),
   methods: {
+
+    async disconnect(){
+        const response = await axios.post('../Controller/logout.php', {
+    })
+        console.log(response.data);
+        window.location.reload();
+  },
 
   },
 
