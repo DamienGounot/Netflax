@@ -7,7 +7,6 @@ use PHPMailer\PHPMailer\Exception;
 
 //Load Composer's autoloader
 require '../PHPMailer/vendor/autoload.php';
-
 function sendActivationMail($user,$to,$hash,$domain,$from,$from_password,$time){
         
     $mail = new PHPMailer(true);
@@ -254,8 +253,13 @@ function sendActivationMail($user,$to,$hash,$domain,$from,$from_password,$time){
       </body>
     </html>";
 
+    try {
+     $mail->Send();
+    } catch (\Throwable $th) {
+      return false;
+    }
+    return true;
 
-    $mail->send();
 
 }
 ?>
