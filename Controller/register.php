@@ -24,11 +24,11 @@ if(isset($emailRegister) && isset($usernameRegister) && isset($passwordRegister)
 
                 if(!empty($data)){ // if user already exist
                     $text = "Username already taken !";
-                    logger("ERROR","REGISTER",$usernameRegister,$text,$FILEPATH);
-                    sendToClient("ERROR",$text);
+                    logger("WARNING","REGISTER",$usernameRegister,$text,$FILEPATH);
+                    sendToClient("WARNING",$text);
                 }else{
                     $eMailVerificationHash = md5( rand(0,1000) );
-                    $time = date("Y-m-d;H:i:s");
+                    $time = date("Y-m-d H:i:s");
                     $encPass = saltedHash($passwordRegister);
                     $query = "INSERT INTO `users` (`username`,`email`,`password`,`creationTime`,`verificationHash`) VALUES ('".$usernameRegister."','".$emailRegister."','".$encPass."','".$time."','".$eMailVerificationHash."')";
 

@@ -7,4 +7,6 @@ $NAME_DB = "mydb";
 $NOREPLY = "no-reply@netflax.fr";
 $NOREPLY_PASSWORD="Tc5T5yvsc";
 $DOMAIN = "https://www.netflax.fr/";
+$ACTIVATION_DELAY=600;
+$ALLOWED_FAILED_LOGIN=3;
 ?>
