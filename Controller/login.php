@@ -15,46 +15,55 @@ if(isset($username) && isset($password)){ // if every attempt data have been sen
         $query = "SELECT password FROM users WHERE username = '".$username."'"; //check if user exist
         $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
         if(!empty($data)){ // if user exist
-            $query = "SELECT status FROM users WHERE username ='".$username."'"; //get user status
+            $query = "SELECT banned FROM users WHERE username ='".$username."'"; //is user ban ?
             $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
-            if($data[0]['status'] != 0){ // if user account is active
-                $query = "SELECT password FROM users WHERE username ='".$username."'"; //get user storedPassword
+            if($data[0]['banned'] != 1){ // user is not ban
+                $query = "SELECT active FROM users WHERE username ='".$username."'"; //get user status
                 $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
-                $storedPassword = $data[0]['password'];
-                if(password_verify($password,$storedPassword)){ // if password are matching
-                    $_SESSION['ONLINE'] = TRUE;
-                    $_SESSION['USERNAME'] = $username;
-                    $query = "UPDATE users SET failedLogin = '0' WHERE username='".$username."'"; //  reset number of failed attemp
+                if($data[0]['active'] != 0){ // if user account is active
+                    $query = "SELECT password FROM users WHERE username ='".$username."'"; //get user storedPassword
                     $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
-                    $text ="Logged in !";
-                    logger("SUCCESS","LOGIN",$username,$text,$FILEPATH);
-                    sendToClient("SUCCESS",$text);
+                    $storedPassword = $data[0]['password'];
+                    if(password_verify($password,$storedPassword)){ // if password are matching
+                        $_SESSION['ONLINE'] = TRUE;
+                        $_SESSION['USERNAME'] = $username;
+                        $query = "UPDATE users SET failedLogin = '0' WHERE username='".$username."'"; //  reset number of failed attemp
+                        $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
+                        $text ="Logged in !";
+                        logger("SUCCESS","LOGIN",$username,$text,$FILEPATH);
+                        sendToClient("SUCCESS",$text);
 
-                }else{  //real credential error
-                    $query    = "SELECT failedLogin FROM users WHERE username='" . $username . "'"; // get number of failed attemp
-                    $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
-                    $failedLogin = $data[0]['failedLogin'];
-                    $failedLogin ++;
-                    $query = "UPDATE users SET failedLogin = '".$failedLogin."' WHERE username='".$username."'"; //  update number of failed attemp
-                    $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
-                        if($failedLogin >= 3){ // if 3 failed attempt
-                            $query = "UPDATE users SET status = '0' WHERE username ='".$username."'"; //update status (block account)
-                            $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
-                        }
-                    $text = "Incorrect credentials";
+                    }else{  //real credential error
+                        $query    = "SELECT failedLogin FROM users WHERE username='" . $username . "'"; // get number of failed attemp
+                        $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
+                        $failedLogin = $data[0]['failedLogin'];
+                        $failedLogin ++;
+                        $query = "UPDATE users SET failedLogin = '".$failedLogin."' WHERE username='".$username."'"; //  update number of failed attemp
+                        $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
+                            if($failedLogin >= $ALLOWED_FAILED_LOGIN){ // if row failed attempt
+                                $query = "UPDATE users SET active = '0' WHERE username ='".$username."'"; //update status (block account)
+                                $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
+                            }
+                        $text = "Incorrect credentials: ".$failedLogin."/".$ALLOWED_FAILED_LOGIN." before lock";
+                        logger("ERROR","LOGIN",$username,$text,$FILEPATH);
+                        sendToClient("ERROR",$text);
+                    }
+
+                }else{ // if user account is NOT active
+                    $text = "Account is not active";
                     logger("ERROR","LOGIN",$username,$text,$FILEPATH);
                     sendToClient("ERROR",$text);
                 }
-
-            }else{ // if user account is NOT active
-                $text = "Account is not active";
-                logger("ERROR","LOGIN",$username,$text,$FILEPATH);
-                sendToClient("ERROR",$text);
+            }else{ // if user account is ban
+                    $text = "Account is banned";
+                    logger("ERROR","LOGIN",$username,$text,$FILEPATH);
+                    sendToClient("ERROR",$text);
             }
+
         }else{ //if user does NOT exist
             $text = "Unknow account";
-            logger("ERROR","LOGIN",$username,$text,$FILEPATH);
-            sendToClient("ERROR",$text);
+            logger("WARNING","LOGIN",$username,$text,$FILEPATH);
+            sendToClient("WARNING",$text);
         }
     }else{
         $text = "Missing fields";
