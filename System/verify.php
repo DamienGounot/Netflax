@@ -8,27 +8,31 @@ session_start();
 if(isset($_GET['email']) && !empty($_GET['email']) AND isset($_GET['hash']) && !empty($_GET['hash'])){
                     
     $query = "SELECT * FROM users WHERE email='" .htmlspecialchars($_GET['email']). "'AND verificationHash='" .htmlspecialchars($_GET['hash'])."'";
-    $clic = date("Y-m-d;H:i:s");
+    $clic = date("Y-m-d H:i:s"); //MySQL DATETIME format 
     $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
+    $username = "";
+
     if(empty($data)){
         header("Location: ../index.php");        
     }else{
-        
-        $registrationtime = strtotime($user["creationTime"]);
+        $username = $data[0]["username"];
+        $registrationtime = strtotime($data[0]["creationTime"]);
         $clictime = strtotime($clic);
 
-        if($clictime - $registrationtime < 600){ // if less than 10 minutes
+        if($clictime - $registrationtime < $ACTIVATION_DELAY){ // if less than 10 minutes
         
-        $query = "UPDATE users SET status = '1' WHERE email='".htmlspecialchars($_GET['email'])."' AND verificationHash='".htmlspecialchars($_GET['hash'])."' AND status='0'"; 
+        $query = "UPDATE users SET active = '1' WHERE email='".htmlspecialchars($_GET['email'])."' AND verificationHash='".htmlspecialchars($_GET['hash'])."'"; 
         $data = sendToDB($query,$HOST_DB,$NAME_DB,$USERNAME_DB,$PASSWORD_DB);
         
-        $text = "The account with the email : ".htmlspecialchars($_GET['email'])." has been activated !";
-        logger("[SUCCES][ACTIVATION]".$text,$FILEPATH);
-        header("Location: ../index.php");        
+        $text = "Account activated";
+        logger("SUCCESS","ACTIVATION",$username,$text,$FILEPATH);
+        sendToClient("SUCCESS",$text);
+        header("Location: ../index.php");      
     }else{
                         
-        $text = "The account with the email : ".htmlspecialchars($_GET['email'])." has not been activated because delay reached !";
-        logger("[ERROR][ACTIVATION]".$text,$FILEPATH);
+        $text = "Delay reached, account not activated";
+        logger("ERROR","ACTIVATION",$username,$text,$FILEPATH);
+        sendToClient("ERROR",$text);
         header("Location: ../index.php");            
         }
     }
