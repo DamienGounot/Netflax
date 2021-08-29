@@ -177,9 +177,9 @@ include_once './System/global_var.php';
         usernameLogin: this.usernameLogin,
         passwordLogin: this.passwordLogin,
     })
-    console.log(loginResponse.data)
-    this.alertMessage = loginResponse.data.text;
-    this.alertDisplay = true; 
+        console.log(loginResponse.data)
+        this.alertMessage = loginResponse.data.text;
+        this.alertDisplay = true; 
     switch (loginResponse.data.type) {
         case "ERROR":
             this.alertType = "error";
@@ -189,7 +189,7 @@ include_once './System/global_var.php';
             window.location.reload();
             break;    
         default:
-        this.alertType = "warning";
+            this.alertType = "warning";
             break;
     }
   },
@@ -211,17 +211,16 @@ include_once './System/global_var.php';
    })
         console.log(registerResponse.data)
         this.alertMessageRegister = registerResponse.data.text;
-    this.alertDisplayRegister = true; 
+        this.alertDisplayRegister = true; 
     switch (registerResponse.data.type) {
         case "ERROR":
             this.alertTypeRegister = "error";
             break;
         case "SUCCESS":
-            
             this.alertTypeRegister = "success";
             break;    
         default:
-        this.alertType = "warning";
+            this.alertTypeRegister = "warning";
             break;
     }
     },
